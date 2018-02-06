@@ -2,6 +2,8 @@ package me.matthewe.atherial.api.title;
 
 import org.bukkit.entity.Player;
 
+import java.util.Collection;
+
 /**
  * Created by Matthew E on 2/4/2018.
  */
@@ -17,4 +19,6 @@ public interface Title {
     Title fadeOut(int fadeOut);
 
     Title send(Player... players);
+
+    Title send(Collection<? extends Player> onlinePlayers);
 }

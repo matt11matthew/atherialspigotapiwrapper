@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
+import java.util.Collection;
 
 /**
  * Created by Matthew E on 2/4/2018.
@@ -49,6 +50,14 @@ public class AtherialTitle implements Title {
     public Title send(Player... players) {
         for (Player player : players) {
             this.sendTitleAndSubTitle(player, (title == null ? "" : title), (subTitle == null ? "" : subTitle), fadeIn, (stay == 0 ? 20 : 0), fadeOut);
+        }
+        return this;
+    }
+
+    @Override
+    public Title send(Collection<? extends Player> onlinePlayers) {
+        for (Player onlinePlayer : onlinePlayers) {
+            this.send(onlinePlayer);
         }
         return this;
     }

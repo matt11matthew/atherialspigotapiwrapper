@@ -9,14 +9,14 @@ import java.util.UUID;
  * Created by Matthew E on 2/4/2018.
  */
 public abstract class SkullItem extends AtherialItem {
-    abstract SkullItem skullType(SkullType skullType);
+    public  abstract SkullItem skullType(SkullType skullType);
 
     @Deprecated
-    abstract SkullItem owner(String playerName);
+    public  abstract SkullItem owner(String playerName);
 
-    abstract SkullItem owner(UUID uuid);
+    public  abstract SkullItem owner(UUID uuid);
 
-    abstract SkullItem owner(OfflinePlayer offlinePlayer);
+    public   abstract SkullItem owner(OfflinePlayer offlinePlayer);
 
-    abstract SkullItem owner(Player player);
+    public abstract SkullItem owner(Player player);
 }

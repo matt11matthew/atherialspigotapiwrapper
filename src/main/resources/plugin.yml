@@ -1,0 +1,5 @@
+name: AtherialSpigotApi
+main: me.matthewe.atherial.api.SpigotPlugin
+version: 1.0.0
+authors: [MatthewE]
+softdepend: [PlaceholderAPI]
