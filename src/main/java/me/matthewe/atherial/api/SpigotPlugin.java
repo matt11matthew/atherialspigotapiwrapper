@@ -2,50 +2,76 @@ package me.matthewe.atherial.api;
 
 import me.matthewe.atherial.api.modules.buycraft.AtherialBuyCraftApi;
 import me.matthewe.atherial.api.modules.buycraft.BuyCraftApi;
+import me.matthewe.atherial.api.modules.buycraft.BuyCraftPlayer;
+import me.matthewe.atherial.api.modules.buycraft.ban.Ban;
+import me.matthewe.atherial.api.modules.buycraft.events.BuyCraftBanEvent;
+import me.matthewe.atherial.api.modules.buycraft.events.BuyCraftPaymentEvent;
 import me.matthewe.atherial.api.modules.buycraft.information.Information;
+import me.matthewe.atherial.api.modules.buycraft.listings.Listings;
+import me.matthewe.atherial.api.modules.buycraft.payments.Payment;
 import me.matthewe.atherial.api.modules.placeholderapi.ChildPlaceHolder;
 import me.matthewe.atherial.api.modules.placeholderapi.PlaceHolderApiModule;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.ChatColor;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Created by Matthew E on 2/4/2018.
  */
-public class SpigotPlugin extends JavaPlugin {
+public class SpigotPlugin extends JavaPlugin implements Listener {
     private static AtherialApi atherialApi;
     private final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("AtherialApiTest");
 
     @Override
     public void onEnable() {
         atherialApi = new SpigotAtherialApi(this);
+        Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
-        atherialApi.loadModules(new PlaceHolderApiModule(this), new AtherialBuyCraftApi());
+        atherialApi.loadModules(new PlaceHolderApiModule(this), new AtherialBuyCraftApi(this));
 
+
+        if (atherialApi.isModuleLoaded(AtherialBuyCraftApi.class)) {
+            BuyCraftApi buyCraftApi = atherialApi.getModule(AtherialBuyCraftApi.class);
+            buyCraftApi.setSecret("YOUR_API_KEY");
+
+            buyCraftApi.updateCache();
+            Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, buyCraftApi::updateCache, 4000L, 4000L);
+            Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, buyCraftApi::updatePayments, 250L, 250L);
+            Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, buyCraftApi::updateBans, 250L, 250L);
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(this, buyCraftApi::callEvents, 20L, 20L);
+
+            Information information = buyCraftApi.getInformation();
+            System.out.println(information.getAccount().getName());
+        }
         if (atherialApi.isModuleLoaded(PlaceHolderApiModule.class)) {
             PlaceHolderApiModule placeHolderApiModule = atherialApi.getModule(PlaceHolderApiModule.class);
 
-            placeHolderApiModule.registerPlaceHolder("matt11matthew",
-                    new ChildPlaceHolder("staff_count", player -> "1"),
-                    new ChildPlaceHolder("staff_list", HumanEntity::getName));
-
-            Player matt11matthew = Bukkit.getPlayer("matt11matthew");
-
-            String message = placeHolderApiModule.setPlaceHolders(matt11matthew, "%matt11matthew_staff_count% %matt11matthew_staff_list%");
-            matt11matthew.sendMessage(message);
+            placeHolderApiModule.registerPlaceHolder("buycraft",
+                    new ChildPlaceHolder("total_money_earned", player -> "UNKNOWN"));
         }
 
+    }
 
-        BuyCraftApi buyCraftApi = atherialApi.getModule(AtherialBuyCraftApi.class);
-        buyCraftApi.setSecret("e305159db019b531d94f93484f01dbcf297d09e3");
+    @EventHandler
+    public void onBuyCraftPayment(BuyCraftPaymentEvent event) {
+        Payment payment = event.getPayment();
+        BuyCraftPlayer player = payment.getPlayer();
+        BuyCraftApi buyCraftApi = event.getBuyCraftApi();
+        if (player != null) {
+            Bukkit.getServer().broadcastMessage(ChatColor.GREEN + "Thank you " + player.getName() + " for purchasing from the store");
+            for (Payment.Package aPackage : payment.getPackages()) {
+                Listings.BuyCraftPackage buyCraftPackage = buyCraftApi.getBuyCraftPackage(aPackage.getId());
+                Bukkit.getServer().broadcastMessage(ChatColor.GRAY + "-" + aPackage.getName() + " " + payment.getCurrency().getSymbol() + buyCraftPackage.getPrice() + " " + payment.getCurrency().getSymbol());
+            }
+        }
+    }
 
-        buyCraftApi.updateCache();
-        Bukkit.getScheduler().scheduleAsyncRepeatingTask(this, buyCraftApi::updateCache, 4000L, 4000L);
-
-        Information information = buyCraftApi.getInformation();
-        System.out.println(information.getAccount().getName());
-
+    @EventHandler
+    public void onBuyCraftBan(BuyCraftBanEvent event) {
+        Ban ban = event.getBan();
+        Bukkit.getServer().broadcastMessage(ChatColor.RED + ban.getUser().getIgn() + " has been banned from buycraft for " + ban.getReason());
     }
 
     @Override

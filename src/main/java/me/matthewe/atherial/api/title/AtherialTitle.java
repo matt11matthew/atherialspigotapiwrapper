@@ -62,6 +62,9 @@ public class AtherialTitle implements Title {
         return this;
     }
 
+    /**
+     * Credit https://www.spigotmc.org/threads/send-titles-to-players-using-spigot-1-8-1-11-2.48819/
+     */
     private void sendTitleAndSubTitle(Player player, String text, String subTitle, int fadeInTime, int showTime, int fadeOutTime) {
         try {
             Object chatTitle = getNMSClass("IChatBaseComponent").getDeclaredClasses()[0].getMethod("a", String.class).invoke(null, "{\"text\": \"" + text + "\"}");
@@ -81,6 +84,9 @@ public class AtherialTitle implements Title {
         }
     }
 
+    /**
+     * Credit https://www.spigotmc.org/threads/send-titles-to-players-using-spigot-1-8-1-11-2.48819/
+     */
     private void sendPacket(Player player, Object packet) {
         try {
             Object handle = player.getClass().getMethod("getHandle").invoke(player);
@@ -91,6 +97,9 @@ public class AtherialTitle implements Title {
         }
     }
 
+    /**
+     * Credit https://www.spigotmc.org/threads/send-titles-to-players-using-spigot-1-8-1-11-2.48819/
+     */
     private Class<?> getNMSClass(String name) {
         try {
             return Class.forName("net.minecraft.server" + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + "." + name);

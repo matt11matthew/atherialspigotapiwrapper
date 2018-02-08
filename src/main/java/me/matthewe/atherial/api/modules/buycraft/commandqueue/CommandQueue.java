@@ -1,6 +1,7 @@
 package me.matthewe.atherial.api.modules.buycraft.commandqueue;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import me.matthewe.atherial.api.modules.buycraft.BuyCraftPlayer;
 
 /**
  * Created by Matthew E on 2/6/2018.
@@ -10,13 +11,13 @@ public class CommandQueue {
     private MetaBean metaBean;
 
     @JsonProperty("players")
-    private BuyCraftPlayerBean[] players;
+    private BuyCraftPlayer[] players;
 
     public MetaBean getMetaBean() {
         return metaBean;
     }
 
-    public BuyCraftPlayerBean[] getPlayers() {
+    public BuyCraftPlayer[] getPlayers() {
         return players;
     }
 
@@ -42,21 +43,4 @@ public class CommandQueue {
         }
     }
 
-    public static class BuyCraftPlayerBean {
-        private int id;
-        private String name;
-        private String uuid;
-
-        public int getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getUuid() {
-            return uuid;
-        }
-    }
 }
