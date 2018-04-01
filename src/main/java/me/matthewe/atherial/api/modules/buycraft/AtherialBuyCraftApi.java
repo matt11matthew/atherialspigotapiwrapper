@@ -118,7 +118,7 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
         if (response != null) {
             return parseObjectFromJson(response.body(), Checkout.class);
         }
-        return null;
+        return null; 
     }
 
     @Override
