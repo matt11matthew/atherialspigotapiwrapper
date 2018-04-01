@@ -5,13 +5,13 @@ package me.matthewe.atherial.api.modules.buycraft.checkout;
  */
 public class Checkout {
     private String url;
-    private int expires;
+    private String expires;
 
     public String getUrl() {
         return url;
     }
 
-    public int getExpires() {
+    public String getExpires() {
         return expires;
     }
 }
