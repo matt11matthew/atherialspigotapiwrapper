@@ -9,6 +9,7 @@ import com.google.gson.JsonParser;
 import me.matthewe.atherial.api.module.ApiModule;
 import me.matthewe.atherial.api.modules.buycraft.ban.Ban;
 import me.matthewe.atherial.api.modules.buycraft.ban.DataBan;
+import me.matthewe.atherial.api.modules.buycraft.checkout.Checkout;
 import me.matthewe.atherial.api.modules.buycraft.commandqueue.CommandQueue;
 import me.matthewe.atherial.api.modules.buycraft.events.BuyCraftBanEvent;
 import me.matthewe.atherial.api.modules.buycraft.events.BuyCraftPaymentEvent;
@@ -104,6 +105,20 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
     @Override
     public Ban createBan(String user, String reason) {
         return createBan(user, null, reason);
+    }
+
+    @Override
+    public Checkout generateCheckout(String username, int packageId) {
+        Map<String, String> headers = new HashMap<>();
+        Map<String, String> parmas = new HashMap<>();
+        parmas.put("username", username);
+        parmas.put("package_id", packageId + "");
+        headers.put(BUYCRAFT_SECRET_IDENTIFIER, this.secret);
+        Connection.Response response = post(BASE_URL + "/checkout", parmas, headers);
+        if (response != null) {
+            return parseObjectFromJson(response.body(), Checkout.class);
+        }
+        return null;
     }
 
     @Override
@@ -210,7 +225,7 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
                 paymentCacheFile.delete();
             }
             paymentCacheFile.createNewFile();
-            FileUtils.writeLines(paymentCacheFile,completedBanIds);
+            FileUtils.writeLines(paymentCacheFile, completedBanIds);
             System.out.println("Saved " + completedBanIds.size() + " bans.");
         } catch (IOException e) {
             e.printStackTrace();
@@ -291,6 +306,14 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
 
     @Override
     public void updateBans() {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(BUYCRAFT_SECRET_IDENTIFIER, this.secret);
+
+        Connection.Response banListResponse = getResponse(BASE_URL + "/bans", new HashMap<>(), headers);
+        if (banListResponse != null) {
+            this.banList = parseObjectFromJson(banListResponse.body(), me.matthewe.atherial.api.modules.buycraft.ban.BanList.class);
+        }
+
         for (Ban ban : banList.getBans()) {
             if (!completedBanIds.contains(ban.getId())) {
                 completedBanIds.add(ban.getId());

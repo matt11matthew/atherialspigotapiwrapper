@@ -30,7 +30,6 @@ public class AtherialBookItem extends BookItem {
     public BookItem generation(Generation generation) {
         if (this.itemStack != null) {
             BookMeta bookMeta = (BookMeta) this.itemStack.getItemMeta();
-            bookMeta.setGeneration(BookMeta.Generation.valueOf(generation.toString()));
             this.itemStack.setItemMeta(bookMeta);
         }
         return this;

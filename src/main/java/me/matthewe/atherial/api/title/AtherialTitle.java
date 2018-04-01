@@ -102,7 +102,7 @@ public class AtherialTitle implements Title {
      */
     private Class<?> getNMSClass(String name) {
         try {
-            return Class.forName("net.minecraft.server" + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + "." + name);
+            return Class.forName("net.minecraft.server." + Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3] + "." + name);
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
         }

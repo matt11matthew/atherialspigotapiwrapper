@@ -1,6 +1,7 @@
 package me.matthewe.atherial.api.modules.buycraft;
 
 import me.matthewe.atherial.api.modules.buycraft.ban.Ban;
+import me.matthewe.atherial.api.modules.buycraft.checkout.Checkout;
 import me.matthewe.atherial.api.modules.buycraft.commandqueue.CommandQueue;
 import me.matthewe.atherial.api.modules.buycraft.information.Information;
 import me.matthewe.atherial.api.modules.buycraft.listings.Listings;
@@ -19,6 +20,8 @@ public interface BuyCraftApi {
     Ban createBan(String user, String ip, String reason);
 
     Ban createBan(String user, String reason);
+
+    Checkout generateCheckout(String username, int packageId);
 
     Ban createBan(String user);
 

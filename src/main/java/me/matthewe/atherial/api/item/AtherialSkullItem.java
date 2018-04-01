@@ -41,7 +41,7 @@ public class AtherialSkullItem extends SkullItem {
     public SkullItem owner(OfflinePlayer offlinePlayer) {
         if (this.itemStack != null) {
             SkullMeta skullMeta = (SkullMeta) this.itemStack.getItemMeta();
-            skullMeta.setOwningPlayer(offlinePlayer);
+            skullMeta.setOwner(offlinePlayer.getName());
             this.itemStack.setItemMeta(skullMeta);
         }
         return this;
