@@ -13,6 +13,9 @@ import me.matthewe.atherial.api.modules.buycraft.checkout.Checkout;
 import me.matthewe.atherial.api.modules.buycraft.commandqueue.CommandQueue;
 import me.matthewe.atherial.api.modules.buycraft.events.BuyCraftBanEvent;
 import me.matthewe.atherial.api.modules.buycraft.events.BuyCraftPaymentEvent;
+import me.matthewe.atherial.api.modules.buycraft.giftcard.GiftCard;
+import me.matthewe.atherial.api.modules.buycraft.giftcard.GiftCardData;
+import me.matthewe.atherial.api.modules.buycraft.giftcard.GiftCardListData;
 import me.matthewe.atherial.api.modules.buycraft.information.Information;
 import me.matthewe.atherial.api.modules.buycraft.listings.Listings;
 import me.matthewe.atherial.api.modules.buycraft.payments.Payment;
@@ -24,10 +27,7 @@ import org.jsoup.Jsoup;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Matthew E on 2/4/2018.
@@ -45,6 +45,7 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
     private List<Integer> completedPaymentIds;
     private List<Integer> completedBanIds;
     private List<Payment> eventPayments;
+    private List<GiftCard> giftCards;
     private List<Ban> eventBans;
     private Plugin plugin;
 
@@ -55,6 +56,7 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
         this.payments = new ArrayList<>();
         this.eventPayments = new ArrayList<>();
         this.eventBans = new ArrayList<>();
+        this.giftCards = new ArrayList<>();
         this.completedPaymentIds = new ArrayList<>();
         this.completedBanIds = new ArrayList<>();
     }
@@ -145,6 +147,70 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
             }
         }
         return buyCraftPackages.get(id);
+    }
+
+    @Override
+    public List<GiftCard> getCachedGiftCards() {
+        return giftCards;
+    }
+
+    @Override
+    public GiftCard createGiftCard(double amount, String note) {
+        Map<String, String> headers = new HashMap<>();
+        Map<String, String> parmas = new HashMap<>();
+        parmas.put("amount", String.valueOf(amount));
+        if (note != null) {
+            parmas.put("note", note);
+        }
+        headers.put(BUYCRAFT_SECRET_IDENTIFIER, this.secret);
+        Connection.Response response = post(BASE_URL + "/gift-cards/", parmas, headers);
+        if (response != null) {
+            return parseObjectFromJson(response.body(), GiftCardData.class).getGiftCard();
+        }
+        return null;
+    }
+
+    @Override
+    public GiftCard createGiftCard(double amount) {
+        return createGiftCard(amount, null);
+    }
+
+    @Override
+    public GiftCard getGiftCard(int id) {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(BUYCRAFT_SECRET_IDENTIFIER, this.secret);
+        Connection.Response response = getResponse(BASE_URL + "/gift-cards/" + id, new HashMap<>(), headers);
+        if (response != null) {
+            return parseObjectFromJson(response.body(), GiftCardData.class).getGiftCard();
+        }
+        return null;
+    }
+
+    @Override
+    public GiftCard voidGiftCard(int id) {
+        Map<String, String> headers = new HashMap<>();
+        Map<String, String> parmas = new HashMap<>();
+
+        headers.put(BUYCRAFT_SECRET_IDENTIFIER, this.secret);
+        Connection.Response response = delete(BASE_URL + "/gift-cards/" + id, parmas, headers);
+        if (response != null) {
+            return parseObjectFromJson(response.body(), GiftCardData.class).getGiftCard();
+        }
+        return null;
+    }
+
+    @Override
+    public GiftCard topUpGiftCard(int id, String amount) {
+        Map<String, String> headers = new HashMap<>();
+        Map<String, String> parmas = new HashMap<>();
+        parmas.put("amount", String.valueOf(amount));
+
+        headers.put(BUYCRAFT_SECRET_IDENTIFIER, this.secret);
+        Connection.Response response = put(BASE_URL + "/gift-cards/" + id, parmas, headers);
+        if (response != null) {
+            return parseObjectFromJson(response.body(), GiftCardData.class).getGiftCard();
+        }
+        return null;
     }
 
     @Override
@@ -297,6 +363,13 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
             this.listings = parseObjectFromJson(listingsResponse.body(), Listings.class);
         }
 
+
+        Connection.Response giftCardResponse = getResponse(BASE_URL + "/gift-cards", new HashMap<>(), headers);
+        if (giftCardResponse != null) {
+            this.giftCards = new ArrayList<>();
+            this.giftCards.addAll(Arrays.asList(parseObjectFromJson(giftCardResponse.body(), GiftCardListData.class).getGiftCards()));
+        }
+
         Connection.Response banListResponse = getResponse(BASE_URL + "/bans", new HashMap<>(), headers);
         if (banListResponse != null) {
             this.banList = parseObjectFromJson(banListResponse.body(), me.matthewe.atherial.api.modules.buycraft.ban.BanList.class);
@@ -350,6 +423,40 @@ public class AtherialBuyCraftApi implements BuyCraftApi, ApiModule {
                     .ignoreContentType(true)
                     .data(parmas)
                     .method(Connection.Method.GET)
+                    .ignoreHttpErrors(true)
+                    .headers(headers)
+                    .execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Connection.Response delete(String url, Map<String, String> parmas, Map<String, String> headers) {
+        try {
+            return Jsoup
+                    .connect(url)
+                    .userAgent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36")
+                    .ignoreContentType(true)
+                    .data(parmas)
+                    .method(Connection.Method.DELETE)
+                    .ignoreHttpErrors(true)
+                    .headers(headers)
+                    .execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private Connection.Response put(String url, Map<String, String> parmas, Map<String, String> headers) {
+        try {
+            return Jsoup
+                    .connect(url)
+                    .userAgent("Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.107 Safari/537.36")
+                    .ignoreContentType(true)
+                    .data(parmas)
+                    .method(Connection.Method.PUT)
                     .ignoreHttpErrors(true)
                     .headers(headers)
                     .execute();
