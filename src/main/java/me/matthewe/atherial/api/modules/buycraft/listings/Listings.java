@@ -103,8 +103,8 @@ public class Listings implements Iterable<Listings.Category> {
         private int order;
         private String name;
         private Sale sale;
-        @JsonProperty("gui_item")
-        private int guiItem;
+        //@JsonProperty("gui_item")
+        //private int guiItem;
         private double price;
 
         public int getId() {
@@ -123,9 +123,9 @@ public class Listings implements Iterable<Listings.Category> {
             return sale;
         }
 
-        public int getGuiItem() {
-            return guiItem;
-        }
+       // public int getGuiItem() {
+       //     return guiItem;
+       // }
 
         public double getPrice() {
             return price;
