@@ -82,7 +82,16 @@
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
     </repositories>
-
+    <distributionManagement>
+        <repository>
+            <id>CloudEscape-Nexus</id>
+            <url>http://node1.cloudescape.net:8081/repository/cloudescape-maven/</url>
+        </repository>
+        <snapshotRepository>
+            <id>CloudEscape-Nexus</id>
+            <url>http://node1.cloudescape.net:8081/repository/cloudescape-maven/</url>
+        </snapshotRepository>
+    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>

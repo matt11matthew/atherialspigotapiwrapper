@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class GiftCard {
     private int id;
     private String code;
+    @JsonProperty("balance")
     private GiftCardBalance giftCardBalance;
     private String note;
     @JsonProperty("void")
@@ -29,7 +30,7 @@ public class GiftCard {
         return note;
     }
 
-    public boolean is_void() {
+    public boolean isVoid() {
         return _void;
     }
 }

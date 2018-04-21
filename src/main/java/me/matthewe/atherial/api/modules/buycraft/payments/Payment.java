@@ -11,6 +11,7 @@ public class Payment {
     private double amount;
     private String date;
     private Currency currency;
+    private String status;
     private BuyCraftPlayer player;
     private Package[] packages;
 
