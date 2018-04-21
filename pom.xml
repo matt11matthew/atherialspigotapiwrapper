@@ -6,7 +6,7 @@
 
     <groupId>me.matthewe.atherial.api</groupId>
     <artifactId>atherialapi</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3</version>
     <name>AtherialApi</name>
 
     <description>AtherialApi</description>
